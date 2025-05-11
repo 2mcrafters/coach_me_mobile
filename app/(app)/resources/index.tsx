@@ -1,14 +1,20 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity,ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Modal, Pressable } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppSelector } from '@/hooks';
 import { router } from 'expo-router';
 import Colors from '@/constants/colors';
-import { Lock, FileText, Video, Music, Image as ImageIcon } from 'lucide-react-native';
+import { Lock, FileText, Video, Music, Image as ImageIcon, ChevronDown } from 'lucide-react-native';
 
 type Filter = {
   type: string | null;
   license: 'all' | 'free' | 'premium';
+};
+
+type DropdownOption = {
+  label: string;
+  value: string;
+  icon?: React.ReactNode;
 };
 
 export default function Resources() {
@@ -18,7 +24,22 @@ export default function Resources() {
     license: 'all'
   });
 
-  const types = ['pdf', 'video', 'audio', 'image'];
+  const [showTypeDropdown, setShowTypeDropdown] = useState(false);
+  const [showLicenseDropdown, setShowLicenseDropdown] = useState(false);
+
+  const typeOptions: DropdownOption[] = [
+    { label: 'Tous les types', value: 'null', icon: <FileText size={20} color={Colors.textSecondary} /> },
+    { label: 'PDF', value: 'pdf', icon: <FileText size={20} color={Colors.textSecondary} /> },
+    { label: 'Vidéo', value: 'video', icon: <Video size={20} color={Colors.textSecondary} /> },
+    { label: 'Audio', value: 'audio', icon: <Music size={20} color={Colors.textSecondary} /> },
+    { label: 'Image', value: 'image', icon: <ImageIcon size={20} color={Colors.textSecondary} /> },
+  ];
+
+  const licenseOptions: DropdownOption[] = [
+    { label: 'Toutes les licences', value: 'all' },
+    { label: 'Gratuit', value: 'free' },
+    { label: 'Premium', value: 'premium', icon: <Lock size={20} color={Colors.textSecondary} /> },
+  ];
 
   const filteredResources = useMemo(() => {
     return resources.filter(resource => {
@@ -46,79 +67,45 @@ export default function Resources() {
     }
   };
 
-  const renderTypeFilter = () => (
-    <View style={styles.filterSection}>
-      <Text style={styles.filterTitle}>Type</Text>
-      <ScrollView 
-        horizontal 
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filterScrollContent}
-      >
-        <TouchableOpacity
-          style={[
-            styles.filterChip,
-            !activeFilter.type && styles.filterChipActive
-          ]}
-          onPress={() => setActiveFilter(prev => ({ ...prev, type: null }))}
-        >
-          <Text style={[
-            styles.filterChipText,
-            !activeFilter.type && styles.filterChipTextActive
-          ]}>Tous</Text>
-        </TouchableOpacity>
-        {types.map((type) => (
-          <TouchableOpacity
-            key={type}
-            style={[
-              styles.filterChip,
-              activeFilter.type === type && styles.filterChipActive
-            ]}
-            onPress={() => setActiveFilter(prev => ({ ...prev, type }))}
-          >
-            <View style={styles.filterChipContent}>
-              {getTypeIcon(type)}
+  const renderDropdown = (
+    options: DropdownOption[],
+    visible: boolean,
+    onClose: () => void,
+    onSelect: (value: string) => void,
+    currentValue: string | null
+  ) => (
+    <Modal
+      visible={visible}
+      transparent
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <Pressable style={styles.modalOverlay} onPress={onClose}>
+        <View style={styles.dropdownContent}>
+          {options.map((option) => (
+            <TouchableOpacity
+              key={option.value}
+              style={[
+                styles.dropdownItem,
+                currentValue === option.value && styles.dropdownItemSelected
+              ]}
+              onPress={() => {
+                onSelect(option.value === 'null' ? null : option.value);
+                onClose();
+              }}
+            >
+              {option.icon}
               <Text style={[
-                styles.filterChipText,
-                activeFilter.type === type && styles.filterChipTextActive
-              ]}>{type.toUpperCase()}</Text>
-            </View>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-    </View>
-  );
-
-  const renderLicenseFilter = () => (
-    <View style={styles.filterSection}>
-      <Text style={styles.filterTitle}>Licence</Text>
-      <View style={styles.licenseFilters}>
-        {[
-          { id: 'all', label: 'Tous' },
-          { id: 'free', label: 'Gratuit' },
-          { id: 'premium', label: 'Premium' }
-        ].map((item) => (
-          <TouchableOpacity
-            key={item.id}
-            style={[
-              styles.licenseChip,
-              activeFilter.license === item.id && styles.filterChipActive
-            ]}
-            onPress={() => setActiveFilter(prev => ({ 
-              ...prev, 
-              license: item.id as Filter['license']
-            }))}
-          >
-            {item.id === 'premium' && (
-              <Lock size={16} color={activeFilter.license === 'premium' ? Colors.white : Colors.textSecondary} style={styles.licenseIcon} />
-            )}
-            <Text style={[
-              styles.filterChipText,
-              activeFilter.license === item.id && styles.filterChipTextActive
-            ]}>{item.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </View>
+                styles.dropdownItemText,
+                currentValue === option.value && styles.dropdownItemTextSelected
+              ]}>
+                {option.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </Pressable>
+    </Modal>
   );
 
   const renderItem = ({ item }) => (
@@ -161,6 +148,19 @@ export default function Resources() {
     </TouchableOpacity>
   );
 
+  const getCurrentTypeLabel = () => {
+    const option = typeOptions.find(opt => 
+      (opt.value === 'null' && activeFilter.type === null) || 
+      opt.value === activeFilter.type
+    );
+    return option?.label || 'Tous les types';
+  };
+
+  const getCurrentLicenseLabel = () => {
+    const option = licenseOptions.find(opt => opt.value === activeFilter.license);
+    return option?.label || 'Toutes les licences';
+  };
+
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
@@ -171,9 +171,40 @@ export default function Resources() {
       </View>
 
       <View style={styles.filters}>
-        {renderTypeFilter()}
-        {renderLicenseFilter()}
+        <View style={styles.filterRow}>
+          <TouchableOpacity
+            style={styles.dropdown}
+            onPress={() => setShowTypeDropdown(true)}
+          >
+            <Text style={styles.dropdownText}>{getCurrentTypeLabel()}</Text>
+            <ChevronDown size={20} color={Colors.textSecondary} />
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={styles.dropdown}
+            onPress={() => setShowLicenseDropdown(true)}
+          >
+            <Text style={styles.dropdownText}>{getCurrentLicenseLabel()}</Text>
+            <ChevronDown size={20} color={Colors.textSecondary} />
+          </TouchableOpacity>
+        </View>
       </View>
+
+      {renderDropdown(
+        typeOptions,
+        showTypeDropdown,
+        () => setShowTypeDropdown(false),
+        (value) => setActiveFilter(prev => ({ ...prev, type: value })),
+        activeFilter.type
+      )}
+
+      {renderDropdown(
+        licenseOptions,
+        showLicenseDropdown,
+        () => setShowLicenseDropdown(false),
+        (value) => setActiveFilter(prev => ({ ...prev, license: value as Filter['license'] })),
+        activeFilter.license
+      )}
 
       <FlatList
         data={filteredResources}
@@ -208,66 +239,63 @@ const styles = StyleSheet.create({
   },
   filters: {
     backgroundColor: Colors.white,
-    paddingBottom: 16,
+    paddingHorizontal: 24,
+    paddingVertical: 16,
     borderBottomWidth: 1,
     borderBottomColor: Colors.border,
   },
-  filterSection: {
-    paddingHorizontal: 24,
-    marginBottom: 16,
-  },
-  filterTitle: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 14,
-    color: Colors.text,
-    marginBottom: 12,
-  },
-  filterScrollContent: {
-    paddingRight: 16,
-  },
-  filterChip: {
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: Colors.backgroundSecondary,
-    marginRight: 8,
-    borderWidth: 1,
-    borderColor: Colors.border,
-  },
-  filterChipActive: {
-    backgroundColor: Colors.primary,
-    borderColor: Colors.primary,
-  },
-  filterChipContent: {
+  filterRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    gap: 12,
   },
-  filterChipText: {
-    fontFamily: 'Poppins-Medium',
-    fontSize: 14,
-    color: Colors.textSecondary,
-    marginLeft: 4,
-  },
-  filterChipTextActive: {
-    color: Colors.white,
-  },
-  licenseFilters: {
-    flexDirection: 'row',
-    gap: 8,
-  },
-  licenseChip: {
+  dropdown: {
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
-    borderRadius: 20,
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
     backgroundColor: Colors.backgroundSecondary,
+    borderRadius: 12,
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  licenseIcon: {
-    marginRight: 4,
+  dropdownText: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: Colors.text,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  dropdownContent: {
+    backgroundColor: Colors.white,
+    borderRadius: 12,
+    padding: 8,
+    width: '80%',
+    maxHeight: '80%',
+  },
+  dropdownItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 16,
+    borderRadius: 8,
+  },
+  dropdownItemSelected: {
+    backgroundColor: Colors.primaryLight + '20',
+  },
+  dropdownItemText: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: 16,
+    color: Colors.text,
+    marginLeft: 12,
+  },
+  dropdownItemTextSelected: {
+    fontFamily: 'Poppins-Medium',
+    color: Colors.primary,
   },
   listContent: {
     padding: 16,
