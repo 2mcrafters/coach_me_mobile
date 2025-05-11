@@ -5,14 +5,7 @@ import { checkAuth } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
 import { View, StyleSheet, Platform } from 'react-native';
 import Colors from '@/constants/colors';
-import {
-  Home,
-  MessageSquare,
-  Medal,
-  UserCircle,
-  Calendar,
-  BookOpen
-} from 'lucide-react-native';
+import { Chrome as Home, MessageSquare, Medal, CircleUser as UserCircle, Calendar, BookOpen } from 'lucide-react-native';
 import Animated, {
   useAnimatedStyle,
   withSpring,
