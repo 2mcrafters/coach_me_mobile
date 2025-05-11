@@ -1,7 +1,34 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import * as SecureStore from 'expo-secure-store';
 import { User, AuthState } from '../../types';
 import axiosInstance from '../../services/axiosInstance';
+import { Platform } from 'react-native';
+
+// Helper functions for cross-platform storage
+const storage = {
+  async setItem(key: string, value: string) {
+    if (Platform.OS === 'web') {
+      localStorage.setItem(key, value);
+    } else {
+      await SecureStore.setItemAsync(key, value);
+    }
+  },
+  
+  async getItem(key: string) {
+    if (Platform.OS === 'web') {
+      return localStorage.getItem(key);
+    }
+    return await SecureStore.getItemAsync(key);
+  },
+  
+  async removeItem(key: string) {
+    if (Platform.OS === 'web') {
+      localStorage.removeItem(key);
+    } else {
+      await SecureStore.deleteItemAsync(key);
+    }
+  }
+};
 
 const initialState: AuthState = {
   user: null,
@@ -18,9 +45,9 @@ export const login = createAsyncThunk(
       const response = await axiosInstance.post('/login', { email, password });
       const { user, access_token: token } = response.data;
       
-      // Store user data and token securely
-      await SecureStore.setItemAsync('userToken', token);
-      await SecureStore.setItemAsync('userData', JSON.stringify(user));
+      // Store user data and token
+      await storage.setItem('userToken', token);
+      await storage.setItem('userData', JSON.stringify(user));
       
       return { user, token };
     } catch (error: any) {
@@ -45,8 +72,8 @@ export const register = createAsyncThunk(
       const response = await axiosInstance.post('/register', formattedUserData);
       const { user, access_token: token } = response.data;
       
-      await SecureStore.setItemAsync('userToken', token);
-      await SecureStore.setItemAsync('userData', JSON.stringify(user));
+      await storage.setItem('userToken', token);
+      await storage.setItem('userData', JSON.stringify(user));
       
       return { user, token };
     } catch (error: any) {
@@ -61,8 +88,8 @@ export const logout = createAsyncThunk(
   async (_, { rejectWithValue }) => {
     try {
       await axiosInstance.post('/logout');
-      await SecureStore.deleteItemAsync('userToken');
-      await SecureStore.deleteItemAsync('userData');
+      await storage.removeItem('userToken');
+      await storage.removeItem('userData');
       return null;
     } catch (error: any) {
       return rejectWithValue(error.response?.data?.message || 'Erreur lors de la déconnexion.');
@@ -74,23 +101,23 @@ export const checkAuth = createAsyncThunk(
   'auth/check',
   async (_, { rejectWithValue }) => {
     try {
-      const token = await SecureStore.getItemAsync('userToken');
-      const userData = await SecureStore.getItemAsync('userData');
+      const token = await storage.getItem('userToken');
+      const userData = await storage.getItem('userData');
       
       if (token && userData) {
         const response = await axiosInstance.get('/me');
         const user = response.data;
         
         // Update stored user data with latest from server
-        await SecureStore.setItemAsync('userData', JSON.stringify(user));
+        await storage.setItem('userData', JSON.stringify(user));
         
         return { user, token };
       }
       return null;
     } catch (error) {
       // Clean up stored data on auth check failure
-      await SecureStore.deleteItemAsync('userToken');
-      await SecureStore.deleteItemAsync('userData');
+      await storage.removeItem('userToken');
+      await storage.removeItem('userData');
       return null;
     }
   }
