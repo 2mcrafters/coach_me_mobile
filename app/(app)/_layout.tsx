@@ -5,7 +5,7 @@ import { checkAuth } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
 import { View, StyleSheet, Platform } from 'react-native';
 import Colors from '@/constants/colors';
-import { Chrome as Home, CircleUser as UserCircle, BookOpen, ClipboardList } from 'lucide-react-native';
+import { Chrome as Home, CircleUser as UserCircle, BookOpen, ClipboardList, Users } from 'lucide-react-native';
 import Animated, {
   useAnimatedStyle,
   withSpring,
@@ -68,6 +68,15 @@ export default function AppLayout() {
           title: 'Plans',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon icon={ClipboardList} color={color} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="coaches"
+        options={{
+          title: 'Coachs',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon icon={Users} color={color} focused={focused} />
           ),
         }}
       />
