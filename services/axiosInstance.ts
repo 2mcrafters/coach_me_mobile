@@ -1,5 +1,6 @@
 import axios from 'axios';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 
 const BASE_URL = 'http://192.168.0.144:8001/api';
 
@@ -11,6 +12,16 @@ const axiosInstance = axios.create({
   },
 });
 
+// Platform-specific storage implementation
+const storage = {
+  async getItem(key: string) {
+    if (Platform.OS === 'web') {
+      return localStorage.getItem(key);
+    }
+    return await SecureStore.getItemAsync(key);
+  }
+};
+
 // Intercepteur pour ajouter le token d'authentification
 axiosInstance.interceptors.request.use(
   async (config) => {
@@ -21,7 +32,7 @@ axiosInstance.interceptors.request.use(
       headers: config.headers
     });
     
-    const token = await SecureStore.getItemAsync('userToken');
+    const token = await storage.getItem('userToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

@@ -1,10 +1,10 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import * as SecureStore from 'expo-secure-store';
+import { Platform } from 'react-native';
 import { User, AuthState } from '../../types';
 import axiosInstance from '../../services/axiosInstance';
-import { Platform } from 'react-native';
 
-// Helper functions for cross-platform storage
+// Platform-specific storage implementation
 const storage = {
   async setItem(key: string, value: string) {
     if (Platform.OS === 'web') {
@@ -13,14 +13,12 @@ const storage = {
       await SecureStore.setItemAsync(key, value);
     }
   },
-  
   async getItem(key: string) {
     if (Platform.OS === 'web') {
       return localStorage.getItem(key);
     }
     return await SecureStore.getItemAsync(key);
   },
-  
   async removeItem(key: string) {
     if (Platform.OS === 'web') {
       localStorage.removeItem(key);
@@ -45,7 +43,6 @@ export const login = createAsyncThunk(
       const response = await axiosInstance.post('/login', { email, password });
       const { user, access_token: token } = response.data;
       
-      // Store user data and token
       await storage.setItem('userToken', token);
       await storage.setItem('userData', JSON.stringify(user));
       
@@ -61,11 +58,10 @@ export const register = createAsyncThunk(
   'auth/register',
   async (userData: Omit<User, 'id'>, { rejectWithValue }) => {
     try {
-      // Convert genre to uppercase first letter to match Laravel format
       const formattedUserData = {
         ...userData,
         genre: userData.genre.charAt(0).toUpperCase() + userData.genre.slice(1),
-        password: 'password', // Default password for testing
+        password: 'password',
         email_verified_at: new Date().toISOString()
       };
 
@@ -108,14 +104,12 @@ export const checkAuth = createAsyncThunk(
         const response = await axiosInstance.get('/me');
         const user = response.data;
         
-        // Update stored user data with latest from server
         await storage.setItem('userData', JSON.stringify(user));
         
         return { user, token };
       }
       return null;
     } catch (error) {
-      // Clean up stored data on auth check failure
       await storage.removeItem('userToken');
       await storage.removeItem('userData');
       return null;
