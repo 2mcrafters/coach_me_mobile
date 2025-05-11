@@ -1,9 +1,16 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-
+import { useAppDispatch, useAppSelector } from '@/hooks';
+import { logout } from '@/store/slices/authSlice';
+import { router } from 'expo-router';
+import Colors from '@/constants/colors';
+import Button from '@/components/common/Button';
 
 const ProfileScreen = () => {
+  const dispatch = useAppDispatch();
+  const { user } = useAppSelector((state) => state.auth);
+
   const stats = [
     { icon: '📚', label: 'Course', value: '53' },
     { icon: '⏰', label: 'Hours', value: '20' },
@@ -17,6 +24,15 @@ const ProfileScreen = () => {
     { icon: '💳', title: 'Payment Account', subtitle: 'Manage Your Payment' },
   ];
 
+  const handleLogout = async () => {
+    try {
+      await dispatch(logout());
+      router.replace('/auth/login');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <ScrollView>
@@ -27,7 +43,7 @@ const ProfileScreen = () => {
               source={require('@/assets/images/default-avatar.png')}
               style={styles.avatar}
             />
-            <Text style={styles.name}>Elon Musk</Text>
+            <Text style={styles.name}>{user?.prenom} {user?.nom}</Text>
             <Text style={styles.subtitle}>Congrats you have rech platinum</Text>
           </View>
 
@@ -66,6 +82,16 @@ const ProfileScreen = () => {
               <Text style={styles.menuArrow}>›</Text>
             </TouchableOpacity>
           ))}
+        </View>
+
+        {/* Logout Button */}
+        <View style={styles.logoutContainer}>
+          <Button
+            title="Se déconnecter"
+            onPress={handleLogout}
+            type="outline"
+            style={styles.logoutButton}
+          />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -196,6 +222,13 @@ const styles = StyleSheet.create({
   menuArrow: {
     fontSize: 24,
     color: '#666',
+  },
+  logoutContainer: {
+    paddingHorizontal: 20,
+    paddingBottom: 32,
+  },
+  logoutButton: {
+    borderColor: Colors.error,
   },
 });
 
