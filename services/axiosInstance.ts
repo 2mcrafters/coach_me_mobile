@@ -21,7 +21,7 @@ axiosInstance.interceptors.request.use(
       headers: config.headers
     });
     
-    const token = await SecureStore.getItemAsync('userToken'); // Utilisation de getItemAsync au lieu de getValueWithKeyAsync
+    const token = await SecureStore.getItemAsync('userToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }

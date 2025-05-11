@@ -6,7 +6,7 @@ export interface User {
   dateNaissance: string;
   telephone: string;
   adresse: string;
-  genre: 'Homme' | 'Femme' | 'Autre';
+  genre: 'homme' | 'femme' | 'autre';
   photo: string;
   statut: string;
   situation_familliale: string;
