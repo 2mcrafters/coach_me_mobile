@@ -28,7 +28,7 @@ export default function Resources() {
   const [showLicenseDropdown, setShowLicenseDropdown] = useState(false);
 
   const typeOptions: DropdownOption[] = [
-    { label: 'Tous les types', value: 'null', icon: <FileText size={20} color={Colors.textSecondary} /> },
+    { label: 'Types', value: 'null', icon: <FileText size={20} color={Colors.textSecondary} /> },
     { label: 'PDF', value: 'pdf', icon: <FileText size={20} color={Colors.textSecondary} /> },
     { label: 'Vidéo', value: 'video', icon: <Video size={20} color={Colors.textSecondary} /> },
     { label: 'Audio', value: 'audio', icon: <Music size={20} color={Colors.textSecondary} /> },
@@ -36,7 +36,7 @@ export default function Resources() {
   ];
 
   const licenseOptions: DropdownOption[] = [
-    { label: 'Toutes les licences', value: 'all' },
+    { label: 'Licences', value: 'all' },
     { label: 'Gratuit', value: 'free' },
     { label: 'Premium', value: 'premium', icon: <Lock size={20} color={Colors.textSecondary} /> },
   ];
