@@ -1,10 +1,14 @@
 import React from 'react';
-import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppSelector } from '@/hooks';
 import { router } from 'expo-router';
 import Colors from '@/constants/colors';
 import { Star } from 'lucide-react-native';
+
+const { width } = Dimensions.get('window');
+const CARD_MARGIN = 8;
+const CARD_WIDTH = (width - (24 * 2) - (CARD_MARGIN * 2)) / 2;
 
 export default function Coaches() {
   const { coaches } = useAppSelector((state) => state.user);
@@ -16,18 +20,18 @@ export default function Coaches() {
     >
       <Image source={{ uri: item.photo }} style={styles.coachImage} />
       <View style={styles.coachInfo}>
-        <Text style={styles.coachName}>{item.prenom} {item.nom}</Text>
-        <Text style={styles.coachSpecialities}>
-          {item.specialites.join(' • ')}
+        <Text style={styles.coachName} numberOfLines={1}>
+          {item.prenom} {item.nom}
+        </Text>
+        <Text style={styles.coachSpecialities} numberOfLines={1}>
+          {item.specialites[0]}
         </Text>
         <View style={styles.coachStats}>
           <View style={styles.ratingContainer}>
-            <Star size={16} color={Colors.secondary} fill={Colors.secondary} />
-            <Text style={styles.ratingText}>
-              {item.rating} ({Math.floor(Math.random() * 100)}k+)
-            </Text>
+            <Star size={14} color={Colors.secondary} fill={Colors.secondary} />
+            <Text style={styles.ratingText}>{item.rating}</Text>
           </View>
-          <Text style={styles.coursCount}>{item.coursCount} Cours</Text>
+          <Text style={styles.coursCount}>{item.coursCount}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -48,6 +52,8 @@ export default function Coaches() {
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
         showsVerticalScrollIndicator={false}
+        numColumns={2}
+        columnWrapperStyle={styles.row}
       />
     </SafeAreaView>
   );
@@ -76,9 +82,14 @@ const styles = StyleSheet.create({
   listContent: {
     padding: 16,
   },
+  row: {
+    justifyContent: 'space-between',
+    marginHorizontal: 8,
+  },
   coachCard: {
+    width: CARD_WIDTH,
     backgroundColor: Colors.white,
-    borderRadius: 16,
+    borderRadius: 12,
     marginBottom: 16,
     overflow: 'hidden',
     elevation: 2,
@@ -89,23 +100,23 @@ const styles = StyleSheet.create({
   },
   coachImage: {
     width: '100%',
-    height: 200,
+    height: CARD_WIDTH,
     resizeMode: 'cover',
   },
   coachInfo: {
-    padding: 16,
+    padding: 12,
   },
   coachName: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 18,
+    fontSize: 14,
     color: Colors.text,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   coachSpecialities: {
     fontFamily: 'Poppins-Regular',
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.textSecondary,
-    marginBottom: 12,
+    marginBottom: 8,
   },
   coachStats: {
     flexDirection: 'row',
@@ -118,13 +129,13 @@ const styles = StyleSheet.create({
   },
   ratingText: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.text,
     marginLeft: 4,
   },
   coursCount: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 14,
+    fontSize: 12,
     color: Colors.textSecondary,
   },
 });
