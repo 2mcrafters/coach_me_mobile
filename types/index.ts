@@ -14,10 +14,30 @@ export interface User {
   email_verified_at?: string;
 }
 
+export interface Resource {
+  id: number;
+  titre: string;
+  type: 'pdf' | 'video' | 'audio' | 'image';
+  url: string;
+  estPremium: boolean;
+  is_individual: boolean;
+  prix: number | null;
+  photo: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AuthState {
   user: User | null;
   token: string | null;
   isAuthenticated: boolean;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export interface ResourceState {
+  resources: Resource[];
+  selectedResource: Resource | null;
   isLoading: boolean;
   error: string | null;
 }

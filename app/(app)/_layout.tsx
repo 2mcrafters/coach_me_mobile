@@ -11,6 +11,7 @@ import {
   Medal,
   UserCircle,
   Calendar,
+  BookOpen
 } from 'lucide-react-native';
 import Animated, {
   useAnimatedStyle,
@@ -74,6 +75,15 @@ export default function AppLayout() {
           title: 'Progrès',
           tabBarIcon: ({ color, focused }) => (
             <TabBarIcon icon={Medal} color={color} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="resources"
+        options={{
+          title: 'Ressources',
+          tabBarIcon: ({ color, focused }) => (
+            <TabBarIcon icon={BookOpen} color={color} focused={focused} />
           ),
         }}
       />
