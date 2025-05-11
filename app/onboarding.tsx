@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, StyleSheet, FlatList, Dimensions, Image } from 'react-native';
+import { View, StyleSheet, FlatList, Dimensions, Image, Text } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import OnboardingItem from '@/components/onboarding/OnboardingItem';
