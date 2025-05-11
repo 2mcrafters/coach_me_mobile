@@ -60,3 +60,20 @@ export interface PlanState {
   isLoading: boolean;
   error: string | null;
 }
+
+export interface Review {
+  id: number;
+  coach_id: number;
+  user_id: number;
+  rating: number;
+  description: string;
+  created_at: string;
+  updated_at: string;
+  user?: User;
+}
+
+export interface ReviewState {
+  reviews: Review[];
+  isLoading: boolean;
+  error: string | null;
+}

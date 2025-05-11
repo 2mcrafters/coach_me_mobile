@@ -3,6 +3,7 @@ import authReducer from './slices/authSlice';
 import userReducer from './slices/userSlice';
 import resourceReducer from './slices/resourceSlice';
 import planReducer from './slices/planSlice';
+import reviewReducer from './slices/reviewSlice';
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     user: userReducer,
     resources: resourceReducer,
     plans: planReducer,
+    reviews: reviewReducer,
   },
 });
 
