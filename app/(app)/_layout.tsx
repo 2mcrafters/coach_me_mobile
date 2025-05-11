@@ -5,7 +5,7 @@ import { checkAuth } from '@/store/slices/authSlice';
 import { router } from 'expo-router';
 import { View, StyleSheet, Platform } from 'react-native';
 import Colors from '@/constants/colors';
-import { Chrome as Home, MessageSquare, Medal, CircleUser as UserCircle, Calendar, BookOpen } from 'lucide-react-native';
+import { Chrome as Home, CircleUser as UserCircle, BookOpen, ClipboardList } from 'lucide-react-native';
 import Animated, {
   useAnimatedStyle,
   withSpring,
@@ -54,24 +54,6 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
-        name="messages"
-        options={{
-          title: 'Messages',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon icon={MessageSquare} color={color} focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="progress"
-        options={{
-          title: 'Progrès',
-          tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon icon={Medal} color={color} focused={focused} />
-          ),
-        }}
-      />
-      <Tabs.Screen
         name="resources"
         options={{
           title: 'Ressources',
@@ -81,11 +63,11 @@ export default function AppLayout() {
         }}
       />
       <Tabs.Screen
-        name="calendar"
+        name="plans"
         options={{
-          title: 'Agenda',
+          title: 'Plans',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon icon={Calendar} color={color} focused={focused} />
+            <TabBarIcon icon={ClipboardList} color={color} focused={focused} />
           ),
         }}
       />
