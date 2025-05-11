@@ -257,8 +257,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: Colors.backgroundSecondary,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: Colors.border,
   },
   dropdownText: {
     fontFamily: 'Poppins-Medium',
@@ -313,10 +311,10 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     flexDirection: 'row',
-    height: 140,
+    height: 100,
   },
   imageContainer: {
-    width: 140,
+    width: 100,
     position: 'relative',
   },
   resourceImage: {
