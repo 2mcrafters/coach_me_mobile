@@ -55,15 +55,15 @@ export default function Resources() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'pdf':
-        return <FileText size={20} color={Colors.textSecondary} />;
+        return <FileText size={16} color={Colors.textSecondary} />;
       case 'video':
-        return <Video size={20} color={Colors.textSecondary} />;
+        return <Video size={16} color={Colors.textSecondary} />;
       case 'audio':
-        return <Music size={20} color={Colors.textSecondary} />;
+        return <Music size={16} color={Colors.textSecondary} />;
       case 'image':
-        return <ImageIcon size={20} color={Colors.textSecondary} />;
+        return <ImageIcon size={16} color={Colors.textSecondary} />;
       default:
-        return <FileText size={20} color={Colors.textSecondary} />;
+        return <FileText size={16} color={Colors.textSecondary} />;
     }
   };
 
@@ -118,25 +118,24 @@ export default function Resources() {
           <Image source={{ uri: item.photo }} style={styles.resourceImage} />
           {item.estPremium && (
             <View style={styles.premiumBadge}>
-              <Lock size={16} color={Colors.white} />
+              <Lock size={12} color={Colors.white} />
             </View>
           )}
         </View>
         
         <View style={styles.resourceInfo}>
-          <View style={styles.resourceHeader}>
-            <Text style={styles.resourceTitle} numberOfLines={2}>
-              {item.titre}
-            </Text>
+          <Text style={styles.resourceTitle} numberOfLines={1}>
+            {item.titre}
+          </Text>
+          
+          <View style={styles.resourceMeta}>
             <View style={styles.typeContainer}>
               {getTypeIcon(item.type)}
               <Text style={styles.typeText}>
                 {item.type.toUpperCase()}
               </Text>
             </View>
-          </View>
-          
-          <View style={styles.resourceMeta}>
+            
             {item.prix ? (
               <Text style={styles.priceText}>{item.prix}€</Text>
             ) : (
@@ -240,9 +239,7 @@ const styles = StyleSheet.create({
   filters: {
     backgroundColor: Colors.white,
     paddingHorizontal: 24,
-    paddingVertical: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: Colors.border,
+    paddingBottom: 16,
   },
   filterRow: {
     flexDirection: 'row',
@@ -253,10 +250,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
     backgroundColor: Colors.backgroundSecondary,
-    borderRadius: 12,
+    borderRadius: 8,
   },
   dropdownText: {
     fontFamily: 'Poppins-Medium',
@@ -279,7 +276,7 @@ const styles = StyleSheet.create({
   dropdownItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    padding: 16,
+    padding: 12,
     borderRadius: 8,
   },
   dropdownItemSelected: {
@@ -287,7 +284,7 @@ const styles = StyleSheet.create({
   },
   dropdownItemText: {
     fontFamily: 'Poppins-Regular',
-    fontSize: 16,
+    fontSize: 14,
     color: Colors.text,
     marginLeft: 12,
   },
@@ -300,8 +297,8 @@ const styles = StyleSheet.create({
   },
   resourceCard: {
     backgroundColor: Colors.white,
-    borderRadius: 16,
-    marginBottom: 16,
+    borderRadius: 12,
+    marginBottom: 8,
     overflow: 'hidden',
     elevation: 2,
     shadowColor: Colors.shadow,
@@ -311,10 +308,10 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     flexDirection: 'row',
-    height: 100,
+    height: 72,
   },
   imageContainer: {
-    width: 100,
+    width: 72,
     position: 'relative',
   },
   resourceImage: {
@@ -324,48 +321,45 @@ const styles = StyleSheet.create({
   },
   premiumBadge: {
     position: 'absolute',
-    top: 8,
-    right: 8,
+    top: 4,
+    right: 4,
     backgroundColor: Colors.primary,
-    padding: 8,
-    borderRadius: 20,
+    padding: 4,
+    borderRadius: 12,
   },
   resourceInfo: {
     flex: 1,
-    padding: 16,
+    padding: 12,
     justifyContent: 'space-between',
   },
-  resourceHeader: {
-    flex: 1,
-  },
   resourceTitle: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: 16,
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
     color: Colors.text,
-    marginBottom: 8,
+  },
+  resourceMeta: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   typeContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 4,
   },
   typeText: {
-    fontFamily: 'Poppins-Medium',
+    fontFamily: 'Poppins-Regular',
     fontSize: 12,
     color: Colors.textSecondary,
     marginLeft: 4,
   },
-  resourceMeta: {
-    marginTop: 8,
-  },
   priceText: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 18,
+    fontSize: 14,
     color: Colors.primary,
   },
   freeText: {
     fontFamily: 'Poppins-Medium',
-    fontSize: 18,
+    fontSize: 14,
     color: Colors.success,
   },
 });
