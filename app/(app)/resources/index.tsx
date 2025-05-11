@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { View, Text, StyleSheet, FlatList, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useAppSelector } from '@/hooks';
@@ -6,8 +6,30 @@ import { router } from 'expo-router';
 import Colors from '@/constants/colors';
 import { Lock, FileText, Video, Music, Image as ImageIcon } from 'lucide-react-native';
 
+type Filter = {
+  type: string | null;
+  license: 'all' | 'free' | 'premium';
+};
+
 export default function Resources() {
   const { resources } = useAppSelector((state) => state.resources);
+  const [activeFilter, setActiveFilter] = useState<Filter>({
+    type: null,
+    license: 'all'
+  });
+
+  const types = ['pdf', 'video', 'audio', 'image'];
+
+  const filteredResources = useMemo(() => {
+    return resources.filter(resource => {
+      const matchesType = !activeFilter.type || resource.type === activeFilter.type;
+      const matchesLicense = activeFilter.license === 'all' || 
+        (activeFilter.license === 'premium' && resource.estPremium) ||
+        (activeFilter.license === 'free' && !resource.estPremium);
+      
+      return matchesType && matchesLicense;
+    });
+  }, [resources, activeFilter]);
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -23,6 +45,81 @@ export default function Resources() {
         return <FileText size={20} color={Colors.textSecondary} />;
     }
   };
+
+  const renderTypeFilter = () => (
+    <View style={styles.filterSection}>
+      <Text style={styles.filterTitle}>Type</Text>
+      <ScrollView 
+        horizontal 
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.filterScrollContent}
+      >
+        <TouchableOpacity
+          style={[
+            styles.filterChip,
+            !activeFilter.type && styles.filterChipActive
+          ]}
+          onPress={() => setActiveFilter(prev => ({ ...prev, type: null }))}
+        >
+          <Text style={[
+            styles.filterChipText,
+            !activeFilter.type && styles.filterChipTextActive
+          ]}>Tous</Text>
+        </TouchableOpacity>
+        {types.map((type) => (
+          <TouchableOpacity
+            key={type}
+            style={[
+              styles.filterChip,
+              activeFilter.type === type && styles.filterChipActive
+            ]}
+            onPress={() => setActiveFilter(prev => ({ ...prev, type }))}
+          >
+            <View style={styles.filterChipContent}>
+              {getTypeIcon(type)}
+              <Text style={[
+                styles.filterChipText,
+                activeFilter.type === type && styles.filterChipTextActive
+              ]}>{type.toUpperCase()}</Text>
+            </View>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    </View>
+  );
+
+  const renderLicenseFilter = () => (
+    <View style={styles.filterSection}>
+      <Text style={styles.filterTitle}>Licence</Text>
+      <View style={styles.licenseFilters}>
+        {[
+          { id: 'all', label: 'Tous' },
+          { id: 'free', label: 'Gratuit' },
+          { id: 'premium', label: 'Premium' }
+        ].map((item) => (
+          <TouchableOpacity
+            key={item.id}
+            style={[
+              styles.licenseChip,
+              activeFilter.license === item.id && styles.filterChipActive
+            ]}
+            onPress={() => setActiveFilter(prev => ({ 
+              ...prev, 
+              license: item.id as Filter['license']
+            }))}
+          >
+            {item.id === 'premium' && (
+              <Lock size={16} color={activeFilter.license === 'premium' ? Colors.white : Colors.textSecondary} style={styles.licenseIcon} />
+            )}
+            <Text style={[
+              styles.filterChipText,
+              activeFilter.license === item.id && styles.filterChipTextActive
+            ]}>{item.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
 
   const renderItem = ({ item }) => (
     <TouchableOpacity
@@ -73,8 +170,13 @@ export default function Resources() {
         </Text>
       </View>
 
+      <View style={styles.filters}>
+        {renderTypeFilter()}
+        {renderLicenseFilter()}
+      </View>
+
       <FlatList
-        data={resources}
+        data={filteredResources}
         renderItem={renderItem}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={styles.listContent}
@@ -103,6 +205,69 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Regular',
     fontSize: 16,
     color: Colors.textSecondary,
+  },
+  filters: {
+    backgroundColor: Colors.white,
+    paddingBottom: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  filterSection: {
+    paddingHorizontal: 24,
+    marginBottom: 16,
+  },
+  filterTitle: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: Colors.text,
+    marginBottom: 12,
+  },
+  filterScrollContent: {
+    paddingRight: 16,
+  },
+  filterChip: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: Colors.backgroundSecondary,
+    marginRight: 8,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  filterChipActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  filterChipContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  filterChipText: {
+    fontFamily: 'Poppins-Medium',
+    fontSize: 14,
+    color: Colors.textSecondary,
+    marginLeft: 4,
+  },
+  filterChipTextActive: {
+    color: Colors.white,
+  },
+  licenseFilters: {
+    flexDirection: 'row',
+    gap: 8,
+  },
+  licenseChip: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 8,
+    borderRadius: 20,
+    backgroundColor: Colors.backgroundSecondary,
+    borderWidth: 1,
+    borderColor: Colors.border,
+  },
+  licenseIcon: {
+    marginRight: 4,
   },
   listContent: {
     padding: 16,
