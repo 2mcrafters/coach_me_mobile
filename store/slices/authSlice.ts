@@ -18,12 +18,14 @@ export const login = createAsyncThunk(
       const response = await axiosInstance.post('/login', { email, password });
       const { user, access_token: token } = response.data;
       
+      // Store user data and token securely
       await SecureStore.setItemAsync('userToken', token);
       await SecureStore.setItemAsync('userData', JSON.stringify(user));
       
       return { user, token };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Échec de connexion. Veuillez vérifier vos identifiants.');
+      const errorMessage = error.response?.data?.message || 'Échec de connexion. Veuillez vérifier vos identifiants.';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -32,7 +34,15 @@ export const register = createAsyncThunk(
   'auth/register',
   async (userData: Omit<User, 'id'>, { rejectWithValue }) => {
     try {
-      const response = await axiosInstance.post('/register', userData);
+      // Convert genre to uppercase first letter to match Laravel format
+      const formattedUserData = {
+        ...userData,
+        genre: userData.genre.charAt(0).toUpperCase() + userData.genre.slice(1),
+        password: 'password', // Default password for testing
+        email_verified_at: new Date().toISOString()
+      };
+
+      const response = await axiosInstance.post('/register', formattedUserData);
       const { user, access_token: token } = response.data;
       
       await SecureStore.setItemAsync('userToken', token);
@@ -40,7 +50,8 @@ export const register = createAsyncThunk(
       
       return { user, token };
     } catch (error: any) {
-      return rejectWithValue(error.response?.data?.message || 'Échec de l\'inscription. Veuillez réessayer.');
+      const errorMessage = error.response?.data?.message || 'Échec de l\'inscription. Veuillez réessayer.';
+      return rejectWithValue(errorMessage);
     }
   }
 );
@@ -68,13 +79,16 @@ export const checkAuth = createAsyncThunk(
       
       if (token && userData) {
         const response = await axiosInstance.get('/me');
-        return { 
-          user: response.data, 
-          token 
-        };
+        const user = response.data;
+        
+        // Update stored user data with latest from server
+        await SecureStore.setItemAsync('userData', JSON.stringify(user));
+        
+        return { user, token };
       }
       return null;
     } catch (error) {
+      // Clean up stored data on auth check failure
       await SecureStore.deleteItemAsync('userToken');
       await SecureStore.deleteItemAsync('userData');
       return null;

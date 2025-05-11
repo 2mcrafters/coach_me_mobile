@@ -6,11 +6,12 @@ export interface User {
   dateNaissance: string;
   telephone: string;
   adresse: string;
-  genre: 'homme' | 'femme' | 'autre';
+  genre: 'Homme' | 'Femme' | 'Autre';
   photo: string;
   statut: string;
   situation_familliale: string;
-  role: string;
+  role: 'admin' | 'coach' | 'coache';
+  email_verified_at?: string;
 }
 
 export interface AuthState {
