@@ -27,6 +27,18 @@ export interface Resource {
   updated_at: string;
 }
 
+export interface Plan {
+  id: number;
+  titre: string;
+  description: string;
+  prix: number;
+  duree: number;
+  categorie_id: number;
+  ressources?: Resource[];
+  created_at: string;
+  updated_at: string;
+}
+
 export interface AuthState {
   user: User | null;
   token: string | null;
@@ -38,6 +50,13 @@ export interface AuthState {
 export interface ResourceState {
   resources: Resource[];
   selectedResource: Resource | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export interface PlanState {
+  plans: Plan[];
+  selectedPlan: Plan | null;
   isLoading: boolean;
   error: string | null;
 }
