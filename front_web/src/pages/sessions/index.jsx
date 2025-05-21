@@ -1,3 +1,4 @@
+```typescript
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
@@ -5,8 +6,8 @@ import { fetchSessions, joinSession } from '@/redux/slices/sessionSlice';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, Clock, Video } from 'lucide-react-native';
 import { Alert } from '@/components/ui/Alert';
+import { Calendar, Clock, Video, Users } from 'lucide-react-native';
 
 const SessionsPage = () => {
   const navigate = useNavigate();
@@ -25,12 +26,37 @@ const SessionsPage = () => {
   const handleJoinSession = async (sessionId) => {
     try {
       const result = await dispatch(joinSession(sessionId)).unwrap();
-      // Open Zoom meeting in a new window using the join URL
       if (result.join_url) {
         window.open(result.join_url, '_blank');
       }
     } catch (error) {
       console.error('Failed to join session:', error);
+    }
+  };
+
+  const getStatusBadgeClass = (status) => {
+    switch (status) {
+      case 'scheduled':
+        return 'bg-blue-100 text-blue-800';
+      case 'started':
+        return 'bg-green-100 text-green-800';
+      case 'finished':
+        return 'bg-gray-100 text-gray-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
+  const getStatusText = (status) => {
+    switch (status) {
+      case 'scheduled':
+        return 'Programmée';
+      case 'started':
+        return 'En cours';
+      case 'finished':
+        return 'Terminée';
+      default:
+        return status;
     }
   };
 
@@ -96,17 +122,16 @@ const SessionsPage = () => {
                     </div>
                   </TableCell>
                   <TableCell>{session.topic}</TableCell>
-                  <TableCell>{session.host?.user?.name}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center">
+                      <Users className="mr-2 h-4 w-4" />
+                      {session.host?.user?.name}
+                    </div>
+                  </TableCell>
                   <TableCell>{session.guest?.user?.name}</TableCell>
                   <TableCell>
-                    <span className={`px-2 py-1 rounded-full text-sm ${
-                      session.status === 'scheduled' ? 'bg-blue-100 text-blue-800' :
-                      session.status === 'started' ? 'bg-green-100 text-green-800' :
-                      'bg-gray-100 text-gray-800'
-                    }`}>
-                      {session.status === 'scheduled' ? 'Programmée' :
-                       session.status === 'started' ? 'En cours' :
-                       'Terminée'}
+                    <span className={`px-2 py-1 rounded-full text-sm ${getStatusBadgeClass(session.status)}`}>
+                      {getStatusText(session.status)}
                     </span>
                   </TableCell>
                   <TableCell>
@@ -137,3 +162,4 @@ const SessionsPage = () => {
 };
 
 export default SessionsPage;
+```

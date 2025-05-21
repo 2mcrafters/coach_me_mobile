@@ -1,3 +1,4 @@
+```typescript
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../api';
 
@@ -41,6 +42,19 @@ export const joinSession = createAsyncThunk(
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to join session');
+    }
+  }
+);
+
+// Get Zoom JWT token
+export const getZoomToken = createAsyncThunk(
+  'sessions/getZoomToken',
+  async (_, { rejectWithValue }) => {
+    try {
+      const response = await api.get('/zoom/token');
+      return response.data.token;
+    } catch (error) {
+      return rejectWithValue(error.response?.data?.message || 'Failed to get Zoom token');
     }
   }
 );
@@ -102,9 +116,14 @@ const sessionSlice = createSlice({
       .addCase(joinSession.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
+      })
+      // Get Zoom Token
+      .addCase(getZoomToken.fulfilled, (state, action) => {
+        state.zoomToken = action.payload;
       });
   },
 });
 
 export const { clearSessionError, setZoomToken } = sessionSlice.actions;
 export default sessionSlice.reducer;
+```
