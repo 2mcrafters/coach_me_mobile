@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import api from '../api';
 
+// Fetch all sessions for the authenticated user
 export const fetchSessions = createAsyncThunk(
   'sessions/fetchAll',
   async (_, { rejectWithValue }) => {
@@ -13,11 +14,17 @@ export const fetchSessions = createAsyncThunk(
   }
 );
 
+// Create a new session
 export const createSession = createAsyncThunk(
   'sessions/create',
   async (sessionData, { rejectWithValue }) => {
     try {
-      const response = await api.post('/zoom/meetings', sessionData);
+      const response = await api.post('/zoom/meetings', {
+        topic: sessionData.topic,
+        start_time: sessionData.start_time,
+        duration: sessionData.duration,
+        guest_id: sessionData.guest_id
+      });
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response?.data?.message || 'Failed to create session');
@@ -25,6 +32,7 @@ export const createSession = createAsyncThunk(
   }
 );
 
+// Join an existing session
 export const joinSession = createAsyncThunk(
   'sessions/join',
   async (meetingId, { rejectWithValue }) => {
@@ -44,45 +52,52 @@ const sessionSlice = createSlice({
     currentSession: null,
     loading: false,
     error: null,
+    zoomToken: null,
   },
   reducers: {
     clearSessionError: (state) => {
       state.error = null;
     },
+    setZoomToken: (state, action) => {
+      state.zoomToken = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
+      // Fetch Sessions
       .addCase(fetchSessions.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(fetchSessions.fulfilled, (state, action) => {
         state.loading = false;
         state.sessions = action.payload;
-        state.error = null;
       })
       .addCase(fetchSessions.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+      // Create Session
       .addCase(createSession.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(createSession.fulfilled, (state, action) => {
         state.loading = false;
         state.sessions.push(action.payload);
-        state.error = null;
       })
       .addCase(createSession.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       })
+      // Join Session
       .addCase(joinSession.pending, (state) => {
         state.loading = true;
+        state.error = null;
       })
       .addCase(joinSession.fulfilled, (state, action) => {
         state.loading = false;
         state.currentSession = action.payload;
-        state.error = null;
       })
       .addCase(joinSession.rejected, (state, action) => {
         state.loading = false;
@@ -91,5 +106,5 @@ const sessionSlice = createSlice({
   },
 });
 
-export const { clearSessionError } = sessionSlice.actions;
+export const { clearSessionError, setZoomToken } = sessionSlice.actions;
 export default sessionSlice.reducer;
